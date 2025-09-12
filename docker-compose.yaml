@@ -1,0 +1,7 @@
+
+services:
+  backend:
+    image: foodsharing_dashboard:latest
+    container_name: foodsharing_dashboard
+    ports:
+      - "8050:8050" 
