@@ -89,7 +89,7 @@ def recalc_dataframe(
     
 
     cf = df["cash_flow"].to_numpy()
-    npv_values = np.array([np.sum(cf[:i+1] / (1 + discount_rate) ** np.arange(i+1)) for i in range(len(cf))])
+    npv_values = np.array([np.sum(cf[:i+1] / (1 + discount_rate/12) ** np.arange(i+1)) for i in range(len(cf))])
     df["NPV"] = npv_values
     
     def calculate_irr(cash_flows, required_investments):
@@ -121,7 +121,7 @@ def recalc_dataframe(
             logging.error(f"Error calculating IRR: {e}")
             return np.nan
 
-    df["IRR"] = calculate_irr(df["cash_flow"].to_numpy(), required_investments)
+    df["IRR"] = calculate_irr(df["cash_flow"].to_numpy(), required_investments) 
 
     df["ROI"] = np.where(required_investments > 0, 
                         df["net_profit"] / required_investments, 
@@ -163,13 +163,13 @@ app.layout = html.Div([
 
     html.Div([
         html.Label("Количество привлекаемых пользователей в месяц", style=label_style),
-        dcc.Input(id="users_input", type="number", value=11500, style=input_style),
+        dcc.Input(id="users_input", type="number", value=1500, style=input_style),
 
         html.Label("Количество клиентов в месяц", style=label_style),
-        dcc.Input(id="customers_input", type="number", value=1520, style=input_style),
+        dcc.Input(id="customers_input", type="number", value=300, style=input_style),
 
         html.Label("Коэфициент оттока", style=label_style),
-        dcc.Input(id="churn_rate_input", type="number", value=0.2, style=input_style),
+        dcc.Input(id="churn_rate_input", type="number", value=0.1, style=input_style),
 
         html.Label("Средний чек (AVP)", style=label_style),
         dcc.Input(id="avp_input", type="number", value=10, style=input_style),
@@ -178,7 +178,7 @@ app.layout = html.Div([
         dcc.Input(id="apc_input", type="number", value=3, style=input_style),
 
         html.Label("Маркетинговый бюджет (TMS)", style=label_style),
-        dcc.Input(id="tms_input", type="number", value=8000, style=input_style),
+        dcc.Input(id="tms_input", type="number", value=3000, style=input_style),
 
         html.Label("Себестоимость сделки (COGS)", style=label_style),
         dcc.Input(id="cogs_input", type="number", value=0, style=input_style),
@@ -187,10 +187,10 @@ app.layout = html.Div([
         dcc.Input(id="cogs1_input", type="number", value=0, style=input_style),
 
         html.Label("Стоимость аренды сервера", style=label_style),
-        dcc.Input(id="server_cost_input", type="number", value=10000, style=input_style),
+        dcc.Input(id="server_cost_input", type="number", value=5000, style=input_style),
 
         html.Label("Стоимость домена", style=label_style),
-        dcc.Input(id="domain_cost_input", type="number", value=5000, style=input_style),
+        dcc.Input(id="domain_cost_input", type="number", value=100, style=input_style),
 
         html.Label("Кол-во месяцев расчета", style=label_style),
         dcc.Input(id="month_count_input", type="number", value=36, style=input_style),
@@ -202,7 +202,7 @@ app.layout = html.Div([
         dcc.Input(id="discount_rate_input", type="number", value=0.18, style=input_style),
 
         html.Label("Первичный инвестиционный капитал", style=label_style),
-        dcc.Input(id="required_investments_input", type="number", value=20000, style=input_style),
+        dcc.Input(id="required_investments_input", type="number", value=40000, style=input_style),
 
         html.Br(),
         html.Button("Пересчитать", id="run_button", n_clicks=0, style=button_style)
@@ -327,9 +327,10 @@ def run_model(
 
     return html.Div([
         html.H4("Финансовые показатели:"),
-        html.P(f"NPV: {int(df['NPV'].iloc[0]):,} ₽"),
+        html.P(f"NPV: {int(df['NPV'].iloc[-1]):,} ₽"),
+        html.P(f"Cumulative net profit: {int(df['accumulative_profit'].iloc[-1]):,} ₽"),
         html.P(f"IRR: {irr_str}"),
-        html.P(f"ROI: {df['ROI'].iloc[0] if isinstance(df['ROI'].iloc[0], str) else f'{df['ROI'].iloc[0]:.2%}'}"),
+        html.P(f"ROI: {df['ROI'].iloc[-1] if isinstance(df['ROI'].iloc[-1], str) else f'{df['ROI'].iloc[-1]:.2%}'}"),
 
         html.Hr(),
         html.H5("Графики финансовых показателей:"),
