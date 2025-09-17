@@ -349,7 +349,7 @@ def run_model(
         ], style={'display': 'grid', 'gridTemplateColumns': 'repeat(2, 1fr)', 'gap': '20px'}),
 
         html.Hr(),
-        html.H5("Ключевые показатели (Gauge):"),
+        html.H5("Ключевые показатели:"),
         html.Div([
             dcc.Graph(figure=cm_gauge),
             dcc.Graph(figure=ltv_gauge),
